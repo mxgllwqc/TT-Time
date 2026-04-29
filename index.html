@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>TT Clock</title>
+<title>TT Clock - SirPro</title>
 <link rel="icon" type="image/x-icon" href="https://cdn.sirpro.cc/s/QbZlfI.ico">
 <style>
     html, body {
@@ -38,6 +38,14 @@
         text-transform: uppercase;
     }
 
+    #time, #date {
+        text-shadow: 
+            -1px -1px  0 #000,
+             1px -1px  0 #000,
+            -1px  1px  0 #000,
+             1px  1px  0 #000;
+    }
+
     @media (max-width: 768px) {
         #time {
             font-size: 2.5116vw;
@@ -60,18 +68,21 @@
 function updateClock() {
     const now = new Date();
 
+    const locale = navigator.language || navigator.userLanguage || 'en-GB';
+
     document.getElementById("time").textContent =
         now.toLocaleTimeString(undefined, {
             hour: "2-digit",
             minute: "2-digit",
-            hour12: true
+            second: "2-digit",
+            hour12: false
         });
 
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const year = now.getFullYear();
-    const weekday = now.toLocaleDateString(undefined, { weekday: "short" });
-    document.getElementById("date").textContent = `${month}/${day}/${year} | ${weekday}`;
+    const weekday = now.toLocaleDateString(undefined, { weekday: "long" });
+    document.getElementById("date").textContent = `${day}.${month}.${year} | ${weekday}`;
 }
 
 updateClock();
@@ -148,17 +159,39 @@ function makeDraggable(el, key) {
 makeDraggable(document.getElementById("time"), "clock_time_pos");
 makeDraggable(document.getElementById("date"), "clock_date_pos");
 
+function applyOutline(el, color) {
+    if (color === 'black') {
+        el.style.textShadow = `
+            -1px -1px 0 #fff,
+             1px -1px 0 #fff,
+            -1px  1px 0 #fff,
+             1px  1px 0 #fff
+        `;
+    } else {
+        el.style.textShadow = `
+            -1px -1px 0 #000,
+             1px -1px 0 #000,
+            -1px  1px 0 #000,
+             1px  1px 0 #000
+        `;
+    }
+}
+
 function toggleColor(el, key) {
     el.addEventListener('dblclick', () => {
         const currentColor = el.style.color || 'white';
         const newColor = currentColor === 'white' ? 'black' : 'white';
         el.style.color = newColor;
+        applyOutline(el, newColor);
         localStorage.setItem(key, newColor);
     });
 
     const savedColor = localStorage.getItem(key);
     if (savedColor) {
         el.style.color = savedColor;
+        applyOutline(el, savedColor);
+    } else {
+        applyOutline(el, 'white');
     }
 }
 
